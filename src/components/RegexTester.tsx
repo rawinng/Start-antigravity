@@ -79,39 +79,31 @@ function HighlightedText({ text, pattern }: HighlightedTextProps) {
 export default function RegexTester() {
     const [regexInput, setRegexInput] = useState("");
     const [sampleText, setSampleText] = useState("");
-    const [activePattern, setActivePattern] = useState("");
-    const [activeText, setActiveText] = useState("");
-    const [error, setError] = useState<string | null>(null);
+
+    // Validate regex and get error message if invalid
+    const regexError = useMemo(() => {
+        if (!regexInput) return null;
+        try {
+            new RegExp(regexInput);
+            return null;
+        } catch (e) {
+            return `Invalid regex: ${e instanceof Error ? e.message : "Unknown error"}`;
+        }
+    }, [regexInput]);
+
+    // Only use the pattern if it's valid
+    const validPattern = regexError ? "" : regexInput;
 
     const matchCount = useMemo(() => {
-        if (!activePattern || !activeText) return 0;
+        if (!validPattern || !sampleText) return 0;
         try {
-            const regex = new RegExp(activePattern, "g");
-            const matches = activeText.match(regex);
+            const regex = new RegExp(validPattern, "g");
+            const matches = sampleText.match(regex);
             return matches ? matches.length : 0;
         } catch {
             return 0;
         }
-    }, [activePattern, activeText]);
-
-    const handleUpdate = () => {
-        setError(null);
-
-        // Validate regex
-        if (regexInput) {
-            try {
-                new RegExp(regexInput);
-            } catch (e) {
-                setError(
-                    `Invalid regex: ${e instanceof Error ? e.message : "Unknown error"}`
-                );
-                return;
-            }
-        }
-
-        setActivePattern(regexInput);
-        setActiveText(sampleText);
-    };
+    }, [validPattern, sampleText]);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 w-full max-w-6xl mx-auto">
@@ -132,9 +124,9 @@ export default function RegexTester() {
                         placeholder="Enter regex pattern (e.g., \d+)"
                         className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-shadow font-mono"
                     />
-                    {error && (
-                        <p className="text-red-500 dark:text-red-400 text-sm mt-1">
-                            {error}
+                    {regexError && (
+                        <p className="text-red-500 dark:text-red-400 text-sm mt-1 animate-pulse">
+                            {regexError}
                         </p>
                     )}
                 </div>
@@ -155,13 +147,6 @@ export default function RegexTester() {
                         className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-shadow resize-y"
                     />
                 </div>
-
-                <button
-                    onClick={handleUpdate}
-                    className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-                >
-                    Update
-                </button>
             </div>
 
             {/* Column 2: Render Area */}
@@ -170,19 +155,18 @@ export default function RegexTester() {
                     <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                         Highlighted Matches
                     </h2>
-                    {activePattern && (
+                    {validPattern && sampleText && (
                         <span className="text-sm text-zinc-500 dark:text-zinc-400">
                             {matchCount} match{matchCount !== 1 ? "es" : ""} found
                         </span>
                     )}
                 </div>
                 <div className="min-h-[300px] p-5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 text-zinc-900 dark:text-zinc-100">
-                    {activeText ? (
-                        <HighlightedText text={activeText} pattern={activePattern} />
+                    {sampleText ? (
+                        <HighlightedText text={sampleText} pattern={validPattern} />
                     ) : (
                         <p className="text-zinc-400 dark:text-zinc-600 italic">
-                            Enter sample text and click &quot;Update&quot; to see highlighted
-                            matches...
+                            Start typing to see matches highlighted instantly...
                         </p>
                     )}
                 </div>

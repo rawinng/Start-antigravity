@@ -1,4 +1,5 @@
 import RegexTester from "@/components/RegexTester";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -6,13 +7,21 @@ export default function Home() {
       <main className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Regex Learning Tool
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <Image
+              src="/icon.png"
+              alt="Regex Learning Tool"
+              width={56}
+              height={56}
+              className="rounded-xl shadow-lg"
+            />
+            <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Regex Learning Tool
+            </h1>
+          </div>
           <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
             Enter a regular expression pattern and sample text to visualize
-            matches. Click &quot;Update&quot; to highlight all matching
-            portions.
+            matches instantly. Highlights update in real-time as you type.
           </p>
         </div>
 
